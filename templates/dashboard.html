@@ -1,4 +1,3 @@
-```html
 {% extends "base.html" %}
 
 {% block title %}
@@ -95,14 +94,16 @@ Dashboard | Greenhill Food Co-op
                     View Orders
                 </a>
 
-            {% if session.get("member_role") == "staff" %}
+                {% if session.get("member_role") == "staff" %}
+
                 <a
                     href="{{ url_for('staff_orders') }}"
                     class="btn btn-primary"
                 >
                     Manage All Orders
                 </a>
-            {% endif %}
+
+                {% endif %}
 
             </div>
 
@@ -213,6 +214,53 @@ Dashboard | Greenhill Food Co-op
 
 
         <!-- ============================= -->
+        <!-- SYSTEM INFORMATION -->
+        <!-- ============================= -->
+
+        <div class="round-info">
+
+            <h2>
+                ℹ️ How Weekly Ordering Works
+            </h2>
+
+            <p>
+                Greenhill Food Co-op uses a weekly ordering
+                cycle to make grocery collection simple and
+                organised for members.
+            </p>
+
+            <div class="round-details">
+
+                <div>
+                    <strong>
+                        1. Browse
+                    </strong>
+
+                    Select the groceries you need.
+                </div>
+
+                <div>
+                    <strong>
+                        2. Order
+                    </strong>
+
+                    Submit your order before Sunday 8:00 PM.
+                </div>
+
+                <div>
+                    <strong>
+                        3. Collect
+                    </strong>
+
+                    Pick up your groceries on Wednesday.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================= -->
         <!-- MEMBER INFORMATION -->
         <!-- ============================= -->
 
@@ -263,4 +311,3 @@ Dashboard | Greenhill Food Co-op
 </section>
 
 {% endblock %}
-```
