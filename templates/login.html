@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login | Greenhill Food Co-op
+{% endblock %}
+
+
+{% block content %}
+
+<section class="auth-page">
+
+    <div class="auth-card">
+
+        <h1>Welcome Back 👋</h1>
+
+        <p class="subtitle">
+            Login to manage your weekly grocery orders.
+        </p>
+
+
+        {% if error %}
+
+            <div class="message error">
+                {{ error }}
+            </div>
+
+        {% endif %}
+
+
+        <form method="POST">
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+        <div class="auth-links">
+
+            Don't have an account?
+
+            <a href="/register">
+                Register here
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

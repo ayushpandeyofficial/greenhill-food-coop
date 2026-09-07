@@ -1,0 +1,126 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}
+Wholesale Order Summary | Greenhill Food Co-op
+{% endblock %}
+
+{% block content %}
+
+<section class="current-order-page">
+    <div class="container">
+
+        <div class="current-order-header">
+            <span class="small-label">STAFF MANAGEMENT</span>
+
+            <h1>Wholesale Order Summary 📦</h1>
+
+            <p>
+                Combined quantities required from all submitted
+                member orders.
+            </p>
+        </div>
+
+        {% if summary %}
+
+        <div class="order-card">
+
+            <div class="order-card-header">
+                <div>
+                    <h2>Supplier Order</h2>
+                    <p>
+                        Total quantities across all submitted orders.
+                    </p>
+                </div>
+            </div>
+
+            <div class="order-items">
+
+                {% for item in summary %}
+
+                <div class="order-item">
+
+                    <div class="order-item-info">
+
+                        <div class="order-item-icon">
+                            📦
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                {{ item["product_name"] }}
+                            </h3>
+
+                            <p>
+                                Unit:
+                                {{ item["unit_type"] }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="order-item-quantity">
+
+                        <span>
+                            Total Quantity
+                        </span>
+
+                        <strong>
+                            {{ item["total_quantity"] }}
+                            {{ item["unit_type"] }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="order-actions">
+
+                <a
+                    href="{{ url_for('staff_orders') }}"
+                    class="btn btn-secondary"
+                >
+                    ← Back to Orders
+                </a>
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-primary"
+                >
+                    Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-order">
+
+            <div class="empty-order-icon">
+                📦
+            </div>
+
+            <h2>No Submitted Orders</h2>
+
+            <p>
+                There are currently no submitted orders to
+                include in the wholesale summary.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
+```

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}
+Order #{{ order["id"] }} | Greenhill Food Co-op
+{% endblock %}
+
+{% block content %}
+
+<section class="current-order-page">
+    <div class="container">
+
+        <div class="current-order-header">
+            <span class="small-label">ORDER DETAILS</span>
+
+            <h1>
+                Order #{{ order["id"] }}
+            </h1>
+
+            <p>
+                {{ order["round_name"] }}
+            </p>
+        </div>
+
+        <div class="order-card">
+
+            <div class="order-card-header">
+                <div>
+                    <h2>Order Information</h2>
+
+                    <p>
+                        Status:
+                        <strong>
+                            {{ order["status"]|capitalize }}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Pickup:
+                        <strong>
+                            {{ order["pickup_datetime"] }}
+                        </strong>
+                    </p>
+                </div>
+
+                <a
+                    href="{{ url_for('my_orders') }}"
+                    class="btn btn-secondary"
+                >
+                    ← Back to My Orders
+                </a>
+            </div>
+
+
+            <div class="order-items">
+
+                {% for item in order_items %}
+
+                <div class="order-item">
+
+                    <div class="order-item-info">
+
+                        <div class="order-item-icon">
+                            🛒
+                        </div>
+
+                        <div>
+
+                            <span class="product-category">
+                                {{ item["category"] }}
+                            </span>
+
+                            <h3>
+                                {{ item["name"] }}
+                            </h3>
+
+                            <p>
+                                ${{ "%.2f"|format(item["price"]) }}
+                                / {{ item["unit_type"] }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="order-item-quantity">
+
+                        <span>
+                            Quantity
+                        </span>
+
+                        <strong>
+                            {{ item["quantity"] }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="order-item-total">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong>
+                            ${{ "%.2f"|format(
+                                item["price"] * item["quantity"]
+                            ) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="order-total">
+
+                <span>
+                    Order Total
+                </span>
+
+                <strong>
+                    ${{ "%.2f"|format(total) }}
+                </strong>
+
+            </div>
+
+
+            <div class="order-actions">
+
+                <a
+                    href="{{ url_for('my_orders') }}"
+                    class="btn btn-secondary"
+                >
+                    ← Back to My Orders
+                </a>
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-primary"
+                >
+                    Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,266 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard | Greenhill Food Co-op
+{% endblock %}
+
+
+{% block content %}
+
+<section class="dashboard">
+
+    <div class="container">
+
+        <!-- ============================= -->
+        <!-- WELCOME SECTION -->
+        <!-- ============================= -->
+
+        <div class="welcome-box">
+
+            <div>
+                <h1>
+                    Welcome back, {{ name }}! 👋
+                </h1>
+
+                <p>
+                    Manage your weekly grocery orders
+                    from your member dashboard.
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- ============================= -->
+        <!-- DASHBOARD CARDS -->
+        <!-- ============================= -->
+
+        <div class="dashboard-grid">
+
+
+            <!-- BROWSE PRODUCTS -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    🛒
+                </div>
+
+                <h3>
+                    Browse Products
+                </h3>
+
+                <p>
+                    Browse this week's available groceries,
+                    check prices and select the products
+                    you want to order.
+                </p>
+
+                <br>
+
+                <a
+                    href="/products"
+                    class="btn btn-primary"
+                >
+                    View Products
+                </a>
+
+            </div>
+
+
+            <!-- MY ORDERS -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    📋
+                </div>
+
+                <h3>
+                    My Orders
+                </h3>
+
+                <p>
+                    View your current grocery order and
+                    check your previous weekly orders.
+                </p>
+
+                <br>
+
+                <a
+                    href="{{ url_for('my_orders') }}"
+                    class="btn btn-outline"
+                >
+                    View Orders
+                </a>
+
+            {% if session.get("member_role") == "staff" %}
+                <a
+                    href="{{ url_for('staff_orders') }}"
+                    class="btn btn-primary"
+                >
+                    Manage All Orders
+                </a>
+            {% endif %}
+
+            </div>
+
+
+            <!-- MY ACCOUNT -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    👤
+                </div>
+
+                <h3>
+                    My Account
+                </h3>
+
+                <p>
+                    You are currently logged in as a
+                    <strong>{{ role }}</strong>.
+                </p>
+
+                <br>
+
+                <a
+                    href="/logout"
+                    class="btn btn-outline"
+                >
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================= -->
+        <!-- CURRENT GROCERY ROUND -->
+        <!-- ============================= -->
+
+        <div class="round-info">
+
+            <h2>
+                📅 Current Grocery Round
+            </h2>
+
+            <p>
+                Place your order before the weekly
+                ordering deadline.
+            </p>
+
+
+            <div class="round-details">
+
+
+                <!-- ORDER DEADLINE -->
+
+                <div>
+
+                    <strong>
+                        Order Deadline
+                    </strong>
+
+                    Sunday, 8:00 PM
+
+                </div>
+
+
+                <!-- PICKUP -->
+
+                <div>
+
+                    <strong>
+                        Pickup
+                    </strong>
+
+                    Wednesday, 5:00 PM
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div>
+
+                    <strong>
+                        Status
+                    </strong>
+
+                    <span class="round-status">
+                        🟢 Open for Orders
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <br>
+
+            <a
+                href="/products"
+                class="btn btn-primary"
+            >
+                Start Shopping →
+            </a>
+
+        </div>
+
+
+        <!-- ============================= -->
+        <!-- MEMBER INFORMATION -->
+        <!-- ============================= -->
+
+        <div class="member-summary">
+
+            <div>
+
+                <span class="summary-label">
+                    MEMBER
+                </span>
+
+                <strong>
+                    {{ name }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span class="summary-label">
+                    ACCOUNT TYPE
+                </span>
+
+                <strong>
+                    {{ role|capitalize }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span class="summary-label">
+                    ORDERING
+                </span>
+
+                <strong>
+                    Weekly
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+```

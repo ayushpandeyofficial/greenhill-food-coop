@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+Order Submitted | Greenhill Food Co-op
+{% endblock %}
+
+{% block content %}
+
+<section class="current-order-page">
+
+    <div class="container">
+
+        <div class="empty-order">
+
+            <div class="empty-order-icon">
+                ✅
+            </div>
+
+            <h2>
+                Order Submitted Successfully!
+            </h2>
+
+            <p>
+                Your weekly grocery order has been submitted
+                successfully.
+            </p>
+
+            <p>
+                <strong>
+                    Order #{{ order["id"] }}
+                </strong>
+            </p>
+
+            <p>
+                Round:
+                <strong>
+                    {{ order["round_name"] }}
+                </strong>
+            </p>
+
+            <p>
+                Status:
+                <strong>
+                    Submitted
+                </strong>
+            </p>
+
+            <br>
+
+            <a
+                href="/dashboard"
+                class="btn btn-primary"
+            >
+                Return to Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

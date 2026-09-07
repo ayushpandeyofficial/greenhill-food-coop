@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}
+Home | Greenhill Food Co-op
+{% endblock %}
+
+
+{% block content %}
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            🌱 Community • Affordable • Simple
+        </div>
+
+        <h1>
+            Fresh groceries,
+            ordered together.
+        </h1>
+
+        <p>
+            Greenhill Food Co-op makes weekly community grocery
+            ordering simple. Browse available products, submit your
+            order before the deadline and collect your groceries
+            during the weekly pickup.
+        </p>
+
+        <div class="hero-actions">
+
+            {% if session.get("member_id") %}
+
+                <a href="/dashboard" class="btn btn-primary">
+                    Go to Dashboard
+                </a>
+
+            {% else %}
+
+                <a href="/register" class="btn btn-primary">
+                    Join the Co-op
+                </a>
+
+                <a href="/login" class="btn btn-outline">
+                    Member Login
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>How it works</h2>
+
+            <p>
+                A simple process for weekly community grocery ordering.
+            </p>
+
+        </div>
+
+
+        <div class="card-grid">
+
+            <div class="card">
+
+                <div class="card-icon">🛒</div>
+
+                <h3>1. Browse Products</h3>
+
+                <p>
+                    View the products available for the current
+                    weekly grocery round.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">📝</div>
+
+                <h3>2. Submit Your Order</h3>
+
+                <p>
+                    Select the products and quantities your household
+                    needs and submit your order.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">📦</div>
+
+                <h3>3. Collect Your Groceries</h3>
+
+                <p>
+                    Place your order before the Sunday 8 PM cutoff
+                    and collect it during the scheduled pickup.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Built for the community</h2>
+
+            <p>
+                One shared ordering system helps the co-op organise
+                weekly grocery purchases efficiently.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

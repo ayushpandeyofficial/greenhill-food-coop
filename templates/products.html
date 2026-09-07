@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}
+Products | Greenhill Food Co-op
+{% endblock %}
+
+
+{% block content %}
+
+<section class="products-page">
+
+    <div class="container">
+
+        <!-- PAGE HEADER -->
+
+        <div class="products-header">
+
+            <div>
+                <span class="small-label">
+                    THIS WEEK'S GROCERY ROUND
+                </span>
+
+                <h1>
+                    Grocery Catalogue 🛒
+                </h1>
+
+                <p>
+                    Browse fresh groceries and pantry essentials
+                    available for this week's community order.
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- CATEGORY FILTERS -->
+
+        <div class="category-bar">
+
+            <a
+                href="/products"
+                class="category-btn {% if not selected_category %}active{% endif %}"
+            >
+                All Products
+            </a>
+
+
+            {% for category in categories %}
+
+                <a
+                    href="/products?category={{ category }}"
+                    class="category-btn {% if selected_category == category %}active{% endif %}"
+                >
+                    {{ category }}
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- PRODUCT COUNT -->
+
+        <div class="catalogue-info">
+
+            <p>
+                <strong>{{ products|length }}</strong>
+                products available
+            </p>
+
+        </div>
+
+
+        <!-- PRODUCTS -->
+
+        <div class="product-grid">
+
+            {% for product in products %}
+
+                <div class="product-card">
+
+                    <div class="product-image">
+
+                        {% if product["category"] == "Fruit" %}
+                            🍎
+
+                        {% elif product["category"] == "Vegetables" %}
+                            🥕
+
+                        {% elif product["category"] == "Dairy" %}
+                            🥛
+
+                        {% elif product["category"] == "Bakery" %}
+                            🍞
+
+                        {% elif product["category"] == "Cooking" %}
+                            🫒
+
+                        {% elif product["category"] == "Household" %}
+                            🧼
+
+                        {% elif product["category"] == "Pasta & Sauces" %}
+                            🍝
+
+                        {% else %}
+                            🌾
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="product-content">
+
+                        <span class="product-category">
+                            {{ product["category"] }}
+                        </span>
+
+
+                        <h3>
+                            {{ product["name"] }}
+                        </h3>
+
+
+                        <div class="product-price">
+
+                            ${{ "%.2f"|format(product["price"]) }}
+
+                            <span>
+                                / {{ product["unit_type"] }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="product-footer">
+
+                            <span class="available">
+                                ● Available
+                            </span>
+
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('add_to_order', product_id=product['id']) }}"
+                                class="add-order-form"
+                            >
+
+                                <input
+                                    type="number"
+                                    name="quantity"
+                                    value="1"
+                                    min="1"
+                                    class="quantity-input"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="add-btn"
+                                >
+                                    Add to Order
+                                </button>
+
+                            </form>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        {% if products|length == 0 %}
+
+            <div class="empty-products">
+
+                <div>🔍</div>
+
+                <h2>No products found</h2>
+
+                <p>
+                    There are currently no products in this category.
+                </p>
+
+                <a href="/products" class="btn btn-primary">
+                    View All Products
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

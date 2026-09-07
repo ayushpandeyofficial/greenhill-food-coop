@@ -1,0 +1,140 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}
+Staff Orders | Greenhill Food Co-op
+{% endblock %}
+
+{% block content %}
+
+<section class="current-order-page">
+    <div class="container">
+
+        <div class="current-order-header">
+            <span class="small-label">STAFF MANAGEMENT</span>
+
+            <h1>Submitted Orders 📦</h1>
+
+            <p>
+                View all submitted member orders for the current
+                grocery rounds.
+            </p>
+        </div>
+
+
+        {% if orders %}
+
+        <div class="orders-list">
+
+            {% for order in orders %}
+
+            <div class="order-card">
+
+                <div class="order-card-header">
+
+                    <div>
+
+                        <span class="product-category">
+                            {{ order["round_name"] }}
+                        </span>
+
+                        <h2>
+                            Order #{{ order["id"] }}
+                        </h2>
+
+                        <p>
+                            <strong>Member:</strong>
+                            {{ order["member_name"] }}
+                        </p>
+
+                        <p>
+                            <strong>Email:</strong>
+                            {{ order["member_email"] }}
+                        </p>
+
+                        <p>
+                            <strong>Pickup:</strong>
+                            {{ order["pickup_datetime"] }}
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>
+                            {{ order["status"]|capitalize }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="order-item-total">
+
+                        <span>Total</span>
+
+                        <strong>
+                            ${{ "%.2f"|format(order["total"]) }}
+                        </strong>
+
+                        <a
+                            href="{{ url_for('view_order', order_id=order['id']) }}"
+                            class="btn btn-outline"
+                        >
+                            View Order
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="order-actions">
+
+            <a
+                href="{{ url_for('wholesale_summary') }}"
+                class="btn btn-primary"
+            >
+                📦 View Wholesale Summary
+            </a>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="empty-order">
+
+            <div class="empty-order-icon">
+                📦
+            </div>
+
+            <h2>No Submitted Orders</h2>
+
+            <p>
+                There are currently no submitted member orders.
+            </p>
+
+        </div>
+
+
+        <div class="order-actions">
+
+            <a
+                href="{{ url_for('wholesale_summary') }}"
+                class="btn btn-primary"
+            >
+                📦 View Wholesale Summary
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
+```
