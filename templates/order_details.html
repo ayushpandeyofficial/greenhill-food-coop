@@ -146,6 +146,19 @@ Order #{{ order["id"] }} | Greenhill Food Co-op
                     Dashboard
                 </a>
 
+                {% if can_cancel %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('cancel_order', order_id=order['id']) }}"
+                >
+                    <button type="submit" class="btn btn-secondary">
+                        Cancel Entire Order
+                    </button>
+                </form>
+
+                {% endif %}
+
             </div>
 
         </div>
