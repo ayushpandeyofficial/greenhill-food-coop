@@ -26,7 +26,7 @@ round so the app isn't empty on first run.
 ```bash
 python app.py
 ```
-Visit **http://localhost:5000**.
+Visit **[http://localhost:5000](http://127.0.0.1:5000)**.
 
 - Go to `register.html` / `login.html` to create an account or sign in as a member.
 - View `products.html` to browse available products in the open round.
