@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, render_template, request, redirect, url_for, session
 from database.database import initialise_database, get_connection
 
@@ -7,6 +9,19 @@ app.secret_key = "greenhill-development-key"
 
 # Initialise database
 initialise_database()
+
+
+def round_is_open(round_row):
+    """Return True only while a round is open and before its cutoff."""
+    if round_row is None or round_row["status"] != "open":
+        return False
+
+    try:
+        return datetime.now() <= datetime.fromisoformat(
+            round_row["cutoff_datetime"]
+        )
+    except (TypeError, ValueError):
+        return False
 
 
 # =========================
@@ -134,6 +149,26 @@ def products():
 
     connection = get_connection()
 
+    current_round = connection.execute(
+        """
+        SELECT *
+        FROM rounds
+        WHERE status = 'open'
+        ORDER BY id DESC
+        LIMIT 1
+        """
+    ).fetchone()
+
+    if not round_is_open(current_round):
+        connection.close()
+        return render_template(
+            "products.html",
+            products=[],
+            categories=[],
+            selected_category=None,
+            round_open=False
+        )
+
     categories = connection.execute(
         """
         SELECT DISTINCT category
@@ -178,7 +213,8 @@ def products():
         "products.html",
         products=product_list,
         categories=category_list,
-        selected_category=selected_category
+        selected_category=selected_category,
+        round_open=True
     )
 
 
@@ -194,7 +230,7 @@ def add_to_order(product_id):
         return redirect(url_for("login"))
 
     # Get quantity
-    quantity = request.form.get("quantity", type=int)
+    quantity = request.form.get("quantity", type=float)
 
     # Validate quantity
     if quantity is None or quantity < 1:
@@ -213,7 +249,7 @@ def add_to_order(product_id):
         """
     ).fetchone()
 
-    if current_round is None:
+    if not round_is_open(current_round):
 
         connection.close()
 
@@ -243,7 +279,7 @@ def add_to_order(product_id):
         FROM orders
         WHERE member_id = ?
         AND round_id = ?
-        AND status = 'draft'
+        AND status IN ('draft', 'submitted')
         """,
         (
             session["member_id"],
@@ -337,14 +373,19 @@ def current_order():
 
     connection = get_connection()
 
-    # Find the member's current draft order
+    # Find the member's current order. Submitted orders remain editable until
+    # the round closes so members can correct them before the cutoff.
     order = connection.execute(
         """
-        SELECT *
+        SELECT
+            orders.*,
+            rounds.status AS round_status,
+            rounds.cutoff_datetime
         FROM orders
+        JOIN rounds ON orders.round_id = rounds.id
         WHERE member_id = ?
-        AND status = 'draft'
-        ORDER BY id DESC
+        AND orders.status IN ('draft', 'submitted')
+        ORDER BY orders.id DESC
         LIMIT 1
         """,
         (session["member_id"],)
@@ -358,7 +399,9 @@ def current_order():
         return render_template(
             "current_order.html",
             order_items=[],
-            total=0
+            total=0,
+            order=None,
+            can_modify=False
         )
 
     # Get products in the order
@@ -391,7 +434,12 @@ def current_order():
     return render_template(
         "current_order.html",
         order_items=order_items,
-        total=total
+        total=total,
+        order=order,
+        can_modify=round_is_open({
+            "status": order["round_status"],
+            "cutoff_datetime": order["cutoff_datetime"]
+        })
     )
 # =========================
 # UPDATE ORDER ITEM
@@ -403,20 +451,25 @@ def update_order_item(item_id):
     if "member_id" not in session:
         return redirect(url_for("login"))
 
-    quantity = request.form.get("quantity", type=int)
+    quantity = request.form.get("quantity", type=float)
 
     connection = get_connection()
 
     # Make sure this order item belongs to the logged-in member
     item = connection.execute(
         """
-        SELECT order_items.id
+        SELECT
+            order_items.id,
+            rounds.status,
+            rounds.cutoff_datetime
         FROM order_items
         JOIN orders
             ON order_items.order_id = orders.id
+        JOIN rounds
+            ON orders.round_id = rounds.id
         WHERE order_items.id = ?
         AND orders.member_id = ?
-        AND orders.status = 'draft'
+        AND orders.status IN ('draft', 'submitted')
         """,
         (
             item_id,
@@ -427,6 +480,10 @@ def update_order_item(item_id):
     if item is None:
         connection.close()
         return "Order item not found."
+
+    if not round_is_open(item):
+        connection.close()
+        return "This grocery round is closed. The order cannot be modified.", 409
 
     if quantity is None or quantity < 1:
         connection.close()
@@ -463,13 +520,18 @@ def remove_order_item(item_id):
     # Make sure this order item belongs to the logged-in member
     item = connection.execute(
         """
-        SELECT order_items.id
+        SELECT
+            order_items.id,
+            rounds.status,
+            rounds.cutoff_datetime
         FROM order_items
         JOIN orders
             ON order_items.order_id = orders.id
+        JOIN rounds
+            ON orders.round_id = rounds.id
         WHERE order_items.id = ?
         AND orders.member_id = ?
-        AND orders.status = 'draft'
+        AND orders.status IN ('draft', 'submitted')
         """,
         (
             item_id,
@@ -477,7 +539,7 @@ def remove_order_item(item_id):
         )
     ).fetchone()
 
-    if item is not None:
+    if item is not None and round_is_open(item):
 
         connection.execute(
             """
@@ -489,9 +551,58 @@ def remove_order_item(item_id):
 
         connection.commit()
 
+    elif item is not None:
+        connection.close()
+        return "This grocery round is closed. The order cannot be modified.", 409
+
     connection.close()
 
     return redirect(url_for("current_order"))
+
+
+# =========================
+# CANCEL ORDER
+# =========================
+
+@app.route("/cancel-order/<int:order_id>", methods=["POST"])
+def cancel_order(order_id):
+
+    if "member_id" not in session:
+        return redirect(url_for("login"))
+
+    connection = get_connection()
+
+    order = connection.execute(
+        """
+        SELECT
+            orders.id,
+            rounds.status,
+            rounds.cutoff_datetime
+        FROM orders
+        JOIN rounds ON orders.round_id = rounds.id
+        WHERE orders.id = ?
+        AND orders.member_id = ?
+        AND orders.status IN ('draft', 'submitted')
+        """,
+        (order_id, session["member_id"])
+    ).fetchone()
+
+    if order is None:
+        connection.close()
+        return "Order not found.", 404
+
+    if not round_is_open(order):
+        connection.close()
+        return "This grocery round is closed. The order cannot be cancelled.", 409
+
+    connection.execute(
+        "UPDATE orders SET status = 'cancelled' WHERE id = ?",
+        (order_id,)
+    )
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("my_orders"))
 
 # =========================
 # SUBMIT ORDER
@@ -539,8 +650,6 @@ def submit_order():
         return "This grocery round is closed. The order cannot be submitted."
 
     # Check the Sunday 8 PM cutoff
-    from datetime import datetime
-
     cutoff_datetime = datetime.fromisoformat(
         order["cutoff_datetime"]
     )
@@ -677,7 +786,9 @@ def view_order(order_id):
             orders.id,
             orders.status,
             rounds.name AS round_name,
-            rounds.pickup_datetime
+            rounds.pickup_datetime,
+            rounds.status AS round_status,
+            rounds.cutoff_datetime
         FROM orders
         JOIN rounds
             ON orders.round_id = rounds.id
@@ -719,7 +830,14 @@ def view_order(order_id):
         "order_details.html",
         order=order,
         order_items=order_items,
-        total=total
+        total=total,
+        can_cancel=(
+            order["status"] in ("draft", "submitted")
+            and round_is_open({
+                "status": order["round_status"],
+                "cutoff_datetime": order["cutoff_datetime"]
+            })
+        )
     )
 
 @app.route("/staff/orders")

@@ -95,11 +95,14 @@ Current Order | Greenhill Food Co-op
                             class="quantity-form"
                         >
 
+                            {% if can_modify %}
+
                             <input
                                 type="number"
                                 name="quantity"
                                 value="{{ item['quantity'] }}"
-                                min="1"
+                                min="{% if item['unit_type'] == 'kg' %}0.1{% else %}1{% endif %}"
+                                step="{% if item['unit_type'] == 'kg' %}0.1{% else %}1{% endif %}"
                                 class="order-quantity-input"
                             >
 
@@ -109,6 +112,12 @@ Current Order | Greenhill Food Co-op
                             >
                                 Update
                             </button>
+
+                            {% else %}
+
+                            <strong>{{ item['quantity'] }}</strong>
+
+                            {% endif %}
 
                         </form>
 
@@ -125,6 +134,8 @@ Current Order | Greenhill Food Co-op
                             ${{ "%.2f"|format(item["price"] * item["quantity"]) }}
                         </strong>
 
+                        {% if can_modify %}
+
                         <form
                             method="POST"
                             action="{{ url_for('remove_order_item', item_id=item['id']) }}"
@@ -138,6 +149,8 @@ Current Order | Greenhill Food Co-op
                             </button>
 
                         </form>
+
+                        {% endif %}
 
                     </div>
 
@@ -174,6 +187,8 @@ Current Order | Greenhill Food Co-op
                     ← Continue Shopping
                 </a>
 
+                {% if can_modify and order['status'] == 'draft' %}
+
                 <form
                     method="POST"
                     action="{{ url_for('submit_order') }}"
@@ -185,6 +200,28 @@ Current Order | Greenhill Food Co-op
                         Submit Order
                     </button>
                 </form>
+
+                {% endif %}
+
+                {% if can_modify %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('cancel_order', order_id=order['id']) }}"
+                >
+                    <button
+                        type="submit"
+                        class="btn btn-secondary"
+                    >
+                        Cancel Entire Order
+                    </button>
+                </form>
+
+                {% else %}
+
+                <p>This grocery round is closed. The order can no longer be changed.</p>
+
+                {% endif %}
 
             </div>
         </div>

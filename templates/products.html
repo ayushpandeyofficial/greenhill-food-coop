@@ -33,6 +33,8 @@ Products | Greenhill Food Co-op
         </div>
 
 
+        {% if round_open %}
+
         <!-- CATEGORY FILTERS -->
 
         <div class="category-bar">
@@ -147,10 +149,11 @@ Products | Greenhill Food Co-op
                             >
 
                                 <input
-                                    type="number"
-                                    name="quantity"
-                                    value="1"
-                                    min="1"
+                                type="number"
+                                name="quantity"
+                                value="1"
+                                min="{% if product['unit_type'] == 'kg' %}0.1{% else %}1{% endif %}"
+                                step="{% if product['unit_type'] == 'kg' %}0.1{% else %}1{% endif %}"
                                     class="quantity-input"
                                 >
 
@@ -189,6 +192,19 @@ Products | Greenhill Food Co-op
                     View All Products
                 </a>
 
+            </div>
+
+        {% endif %}
+
+        {% else %}
+
+            <div class="empty-products">
+                <div>📅</div>
+                <h2>No open grocery round</h2>
+                <p>
+                    Ordering is currently closed. Products will be available
+                    when the next grocery round opens.
+                </p>
             </div>
 
         {% endif %}
