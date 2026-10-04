@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Orders by Round</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .round-selector {
+            margin-bottom: 30px;
+        }
+
+        select {
+            padding: 8px;
+            min-width: 250px;
+        }
+
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .order {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+
+        .member-details {
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .order-total {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .no-orders {
+            margin-top: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Orders by Round</h1>
+
+    <div class="round-selector">
+
+        <form method="GET" action="{{ url_for('staff_orders_by_round') }}">
+
+            <label for="round_id">
+                <strong>Select Round:</strong>
+            </label>
+
+            <select name="round_id" id="round_id" required>
+
+                <option value="">
+                    -- Select a round --
+                </option>
+
+                {% for round in rounds %}
+
+                    <option
+                        value="{{ round['id'] }}"
+                        {% if selected_round_id == round['id'] %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ round['name'] }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">
+                View Orders
+            </button>
+
+        </form>
+
+    </div>
+
+
+    {% if selected_round_id %}
+
+        {% if orders %}
+
+            {% for order in orders %}
+
+                <div class="order">
+
+                    <div class="member-details">
+
+                        <h2>
+                            Member: {{ order['member_name'] }}
+                        </h2>
+
+                        <p>
+                            <strong>Email:</strong>
+                            {{ order['member_email'] }}
+                        </p>
+
+                        <p>
+                            <strong>Order ID:</strong>
+                            {{ order['order_id'] }}
+                        </p>
+
+                        <p>
+                            <strong>Round:</strong>
+                            {{ order['round_name'] }}
+                        </p>
+
+                    </div>
+
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Unit Price</th>
+                                <th>Line Value</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in order['items'] %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ item['product_name'] }}
+                                    </td>
+
+                                    <td>
+                                        {{ item['quantity'] }}
+                                    </td>
+
+                                    <td>
+                                        {{ item['unit_type'] }}
+                                    </td>
+
+                                    <td>
+                                        ${{ "%.2f"|format(item['price']) }}
+                                    </td>
+
+                                    <td>
+                                        ${{ "%.2f"|format(item['line_value']) }}
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+
+                    <div class="order-total">
+
+                        Order Total:
+                        ${{ "%.2f"|format(order['total']) }}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="no-orders">
+                No submitted orders were found for this round.
+            </p>
+
+        {% endif %}
+
+    {% endif %}
+
+</body>
+</html>
